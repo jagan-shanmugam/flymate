@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { MapPin, Clock, Passport, Shield } from "lucide-react";
+import { MapPin, Clock, Shield } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 const guideItems = [
@@ -9,7 +9,7 @@ const guideItems = [
     description: "Arrive at least 2-3 hours before international flights, 1-2 hours for domestic",
   },
   {
-    icon: Passport,
+    icon: Shield,
     title: "Check-in Process",
     description: "Head to your airline's check-in counter with your ID and booking confirmation",
   },
