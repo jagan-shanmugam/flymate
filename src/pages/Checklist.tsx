@@ -1,10 +1,17 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Check, Plane, Info } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Check } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { toast } from "@/components/ui/use-toast";
+
+interface ChecklistItem {
+  id: number;
+  text: string;
+  completed: boolean;
+}
 
 const Checklist = () => {
-  const [checklist, setChecklist] = useState([
+  const [checklist, setChecklist] = useState<ChecklistItem[]>([
     { id: 1, text: "Pack essential travel documents", completed: false },
     { id: 2, text: "Check airline baggage policy", completed: false },
     { id: 3, text: "Prepare carry-on items", completed: false },
@@ -14,14 +21,26 @@ const Checklist = () => {
   ]);
 
   const toggleItem = (id: number) => {
-    setChecklist(checklist.map(item => 
-      item.id === id ? { ...item, completed: !item.completed } : item
-    ));
+    setChecklist(prevList => {
+      const newList = prevList.map(item =>
+        item.id === id ? { ...item, completed: !item.completed } : item
+      );
+      
+      const completedItem = newList.find(item => item.id === id);
+      if (completedItem?.completed) {
+        toast({
+          title: "Task completed!",
+          description: `You've completed: ${completedItem.text}`,
+        });
+      }
+      
+      return newList;
+    });
   };
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <header className="bg-primary text-white p-6 rounded-b-3xl">
+      <header className="bg-[#9b87f5] text-white p-6 rounded-b-3xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -29,7 +48,7 @@ const Checklist = () => {
           className="max-w-md mx-auto"
         >
           <h1 className="text-3xl font-bold mb-2">Pre-flight Checklist</h1>
-          <p className="text-primary-100">Stay organized for your journey</p>
+          <p className="text-white/80">Stay organized for your journey</p>
         </motion.div>
       </header>
 
@@ -48,10 +67,10 @@ const Checklist = () => {
                 }`}
                 onClick={() => toggleItem(item.id)}
               >
-                <CardContent className="p-4 flex items-center gap-4">
+                <div className="p-4 flex items-center gap-4">
                   <div
                     className={`rounded-full p-2 ${
-                      item.completed ? "bg-primary text-white" : "bg-gray-100"
+                      item.completed ? "bg-[#9b87f5] text-white" : "bg-gray-100"
                     }`}
                   >
                     <Check size={20} />
@@ -59,7 +78,7 @@ const Checklist = () => {
                   <span className={item.completed ? "line-through text-gray-500" : ""}>
                     {item.text}
                   </span>
-                </CardContent>
+                </div>
               </Card>
             </motion.div>
           ))}
