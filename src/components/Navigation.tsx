@@ -1,4 +1,4 @@
-import { Home, Compass, CheckSquare, Users, Menu } from "lucide-react";
+import { Home, Compass, CheckSquare, Users, MessageSquare } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 
@@ -11,6 +11,7 @@ const Navigation = () => {
     { icon: CheckSquare, label: "Checklist", path: "/checklist" },
     { icon: Compass, label: "Airport Guide", path: "/guide" },
     { icon: Users, label: "Community", path: "/community" },
+    { icon: MessageSquare, label: "Messages", path: "/messages" },
   ];
 
   const isActive = (path: string) => location.pathname === path;

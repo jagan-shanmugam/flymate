@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Checklist from "./pages/Checklist";
 import Guide from "./pages/Guide";
 import Community from "./pages/Community";
+import Messages from "./pages/Messages";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +22,7 @@ const App = () => (
             <Route path="/checklist" element={<Checklist />} />
             <Route path="/guide" element={<Guide />} />
             <Route path="/community" element={<Community />} />
+            <Route path="/messages" element={<Messages />} />
           </Routes>
           <Navigation />
         </div>
