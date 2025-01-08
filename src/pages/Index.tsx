@@ -1,22 +1,66 @@
-import { Plane, Clock, Shield, Users } from "lucide-react";
+import { Plane, Clock, Shield, Users, LogOut } from "lucide-react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
+import { toast } from "@/components/ui/use-toast";
+
+interface Profile {
+  username: string | null;
+}
 
 const Index = () => {
+  const navigate = useNavigate();
+  const [profile, setProfile] = useState<Profile | null>(null);
+  
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data } = await supabase
+          .from("profiles")
+          .select("username")
+          .eq("id", user.id)
+          .single();
+        setProfile(data);
+      }
+    };
+    
+    fetchProfile();
+  }, []);
+
+  const handleSignOut = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Error signing out",
+        description: error.message,
+      });
+    } else {
+      navigate("/auth");
+    }
+  };
+
   const features = [
     {
       icon: Clock,
       title: "Pre-flight Checklist",
       description: "Stay organized with our interactive checklist",
+      path: "/checklist"
     },
     {
       icon: Shield,
       title: "Security Guide",
       description: "Learn about security procedures",
+      path: "/guide"
     },
     {
       icon: Users,
       title: "Travel Community",
       description: "Connect with experienced travelers",
+      path: "/community"
     },
   ];
 
@@ -29,8 +73,20 @@ const Index = () => {
           transition={{ duration: 0.5 }}
           className="max-w-md mx-auto"
         >
-          <h1 className="text-3xl font-bold mb-2">Welcome Aboard</h1>
-          <p className="text-primary-100">Your personal guide to stress-free flying</p>
+          <div className="flex justify-between items-center mb-4">
+            <div>
+              <h1 className="text-3xl font-bold mb-2">Welcome{profile?.username ? `, ${profile.username}` : ''}</h1>
+              <p className="text-primary-100">Your personal guide to stress-free flying</p>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-white hover:text-primary-100"
+              onClick={handleSignOut}
+            >
+              <LogOut className="h-5 w-5" />
+            </Button>
+          </div>
         </motion.div>
       </header>
 
@@ -59,7 +115,8 @@ const Index = () => {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3 + index * 0.1 }}
-              className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:border-primary transition-colors duration-200"
+              className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:border-primary transition-colors duration-200 cursor-pointer"
+              onClick={() => navigate(feature.path)}
             >
               <div className="flex items-center mb-3">
                 <feature.icon className="text-primary mr-3" size={24} />
