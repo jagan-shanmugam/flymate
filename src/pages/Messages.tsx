@@ -7,14 +7,14 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface Message {
   id: string;
-  sender_id: string;
-  receiver_id: string;
+  sender_id: string | null;
+  receiver_id: string | null;
   content: string;
   created_at: string;
-  read: boolean;
-  profiles: {
-    username: string;
-  };
+  read: boolean | null;
+  sender: {
+    username: string | null;
+  } | null;
 }
 
 const Messages = () => {
@@ -37,7 +37,9 @@ const Messages = () => {
         .from('messages')
         .select(`
           *,
-          profiles:sender_id (username)
+          sender:sender_id (
+            username
+          )
         `)
         .or(`receiver_id.eq.${user.id},sender_id.eq.${user.id}`)
         .order('created_at', { ascending: false });
@@ -143,7 +145,7 @@ const Messages = () => {
             {messages
               .filter(message =>
                 message.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                message.profiles?.username.toLowerCase().includes(searchQuery.toLowerCase())
+                message.sender?.username?.toLowerCase().includes(searchQuery.toLowerCase())
               )
               .map((message) => (
                 <motion.div
@@ -161,7 +163,7 @@ const Messages = () => {
                       </div>
                       <div className="ml-3">
                         <h3 className="font-semibold">
-                          {message.profiles?.username || 'Anonymous'}
+                          {message.sender?.username || 'Anonymous'}
                         </h3>
                         <p className="text-sm text-gray-600">{message.content}</p>
                       </div>
