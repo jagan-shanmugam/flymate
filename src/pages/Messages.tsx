@@ -36,10 +36,13 @@ const Messages = () => {
       const { data, error } = await supabase
         .from('messages')
         .select(`
-          *,
-          sender:sender_id (
-            username
-          )
+          id,
+          sender_id,
+          receiver_id,
+          content,
+          created_at,
+          read,
+          sender:profiles!sender_id(username)
         `)
         .or(`receiver_id.eq.${user.id},sender_id.eq.${user.id}`)
         .order('created_at', { ascending: false });
