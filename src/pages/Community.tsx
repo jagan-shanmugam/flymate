@@ -28,7 +28,9 @@ const Community = () => {
         .from('forum_posts')
         .select(`
           *,
-          profiles:user_id (username)
+          author:user_id(
+            username
+          )
         `)
         .order('created_at', { ascending: false });
 
@@ -39,7 +41,9 @@ const Community = () => {
         .from('flight_connections')
         .select(`
           *,
-          profiles:user_id (username)
+          user:user_id(
+            username
+          )
         `)
         .order('departure_date', { ascending: true });
 
@@ -172,7 +176,7 @@ const Community = () => {
                           <p className="text-muted-foreground mb-3">{post.content}</p>
                           <div className="flex justify-between items-center">
                             <span className="text-sm text-primary">
-                              @{post.profiles?.username || 'Anonymous'}
+                              @{post.author?.username || 'Anonymous'}
                             </span>
                           </div>
                         </Card>
@@ -207,7 +211,7 @@ const Community = () => {
                           </div>
                           <div className="flex justify-between items-center mt-3">
                             <span className="text-sm text-primary">
-                              @{connection.profiles?.username || 'Anonymous'}
+                              @{connection.user?.username || 'Anonymous'}
                             </span>
                             <Button
                               variant="outline"
