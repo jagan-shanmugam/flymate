@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { MessageSquare, Search, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Message {
@@ -42,7 +42,7 @@ const Messages = () => {
           content,
           created_at,
           read,
-          sender:profiles!sender_id(username)
+          sender:profiles(username)
         `)
         .or(`receiver_id.eq.${user.id},sender_id.eq.${user.id}`)
         .order('created_at', { ascending: false });
