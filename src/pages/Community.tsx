@@ -1,13 +1,13 @@
 import { motion } from "framer-motion";
-import { MessageSquare, Users, Search, Loader2 } from "lucide-react";
+import { MessageSquare, Users, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { SearchBar } from "@/components/community/SearchBar";
+import { ForumPostCard } from "@/components/community/ForumPostCard";
+import { FlightConnectionCard } from "@/components/community/FlightConnectionCard";
 
 const Community = () => {
   const { toast } = useToast();
@@ -23,12 +23,11 @@ const Community = () => {
 
   const fetchData = async () => {
     try {
-      // Fetch forum posts
       const { data: posts, error: postsError } = await supabase
         .from('forum_posts')
         .select(`
           *,
-          author:user_id(
+          profiles!user_id(
             username
           )
         `)
@@ -36,12 +35,11 @@ const Community = () => {
 
       if (postsError) throw postsError;
 
-      // Fetch flight connections
       const { data: connections, error: connectionsError } = await supabase
         .from('flight_connections')
         .select(`
           *,
-          user:user_id(
+          profiles!user_id(
             username
           )
         `)
@@ -135,15 +133,7 @@ const Community = () => {
           </TabsList>
 
           <div className="mb-6">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search discussions or flights..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+            <SearchBar value={searchQuery} onChange={setSearchQuery} />
           </div>
 
           {isLoading ? (
@@ -160,27 +150,14 @@ const Community = () => {
                       post.content.toLowerCase().includes(searchQuery.toLowerCase())
                     )
                     .map((post) => (
-                      <motion.div
+                      <ForumPostCard
                         key={post.id}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <Card className="p-4">
-                          <div className="flex justify-between items-start mb-2">
-                            <h3 className="font-semibold text-lg">{post.title}</h3>
-                            <span className="text-sm text-muted-foreground">
-                              {getTimeDifference(post.created_at)}
-                            </span>
-                          </div>
-                          <p className="text-muted-foreground mb-3">{post.content}</p>
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-primary">
-                              @{post.author?.username || 'Anonymous'}
-                            </span>
-                          </div>
-                        </Card>
-                      </motion.div>
+                        title={post.title}
+                        content={post.content}
+                        author={post.profiles?.username}
+                        createdAt={post.created_at}
+                        getTimeDifference={getTimeDifference}
+                      />
                     ))}
                 </div>
               </TabsContent>
@@ -193,36 +170,16 @@ const Community = () => {
                       connection.destination.toLowerCase().includes(searchQuery.toLowerCase())
                     )
                     .map((connection) => (
-                      <motion.div
+                      <FlightConnectionCard
                         key={connection.id}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <Card className="p-4">
-                          <div className="flex justify-between items-start mb-2">
-                            <div>
-                              <h3 className="font-semibold">Flight {connection.flight_number}</h3>
-                              <p className="text-sm text-muted-foreground">{connection.destination}</p>
-                            </div>
-                            <span className="text-sm text-muted-foreground">
-                              {formatDate(connection.departure_date)}
-                            </span>
-                          </div>
-                          <div className="flex justify-between items-center mt-3">
-                            <span className="text-sm text-primary">
-                              @{connection.user?.username || 'Anonymous'}
-                            </span>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleConnect(connection.user_id)}
-                            >
-                              Connect
-                            </Button>
-                          </div>
-                        </Card>
-                      </motion.div>
+                        flightNumber={connection.flight_number}
+                        destination={connection.destination}
+                        departureDate={connection.departure_date}
+                        username={connection.profiles?.username}
+                        userId={connection.user_id}
+                        formatDate={formatDate}
+                        onConnect={handleConnect}
+                      />
                     ))}
                 </div>
               </TabsContent>
