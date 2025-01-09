@@ -37,9 +37,7 @@ const Messages = () => {
         .from('messages')
         .select(`
           *,
-          sender:profiles!sender_id(
-            username
-          )
+          sender:profiles(username)
         `)
         .or(`receiver_id.eq.${user.id},sender_id.eq.${user.id}`)
         .order('created_at', { ascending: false });
