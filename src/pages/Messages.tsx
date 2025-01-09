@@ -12,7 +12,7 @@ interface Message {
   content: string;
   created_at: string;
   read: boolean | null;
-  profiles?: {
+  sender_profile?: {
     username: string | null;
   } | null;
 }
@@ -37,7 +37,7 @@ const Messages = () => {
         .from('messages')
         .select(`
           *,
-          profiles:sender_id(username)
+          sender_profile:profiles!messages_sender_id_fkey(username)
         `)
         .or(`receiver_id.eq.${user.id},sender_id.eq.${user.id}`)
         .order('created_at', { ascending: false });
@@ -143,7 +143,7 @@ const Messages = () => {
             {messages
               .filter(message =>
                 message.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                message.profiles?.username?.toLowerCase().includes(searchQuery.toLowerCase())
+                message.sender_profile?.username?.toLowerCase().includes(searchQuery.toLowerCase())
               )
               .map((message) => (
                 <motion.div
@@ -161,7 +161,7 @@ const Messages = () => {
                       </div>
                       <div className="ml-3">
                         <h3 className="font-semibold">
-                          {message.profiles?.username || 'Anonymous'}
+                          {message.sender_profile?.username || 'Anonymous'}
                         </h3>
                         <p className="text-sm text-gray-600">{message.content}</p>
                       </div>
